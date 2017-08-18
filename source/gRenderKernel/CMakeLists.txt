@@ -40,6 +40,7 @@ set ( REQUIRE_TGA "0" )
 set ( REQUIRE_GLEW "1" )
 set ( REQUIRE_MAIN "0" )
 set ( REQUIRE_NVGUI "0" )
+set ( CUDA_NVCC_FLAGS_DEBUG "-G;-g;-O0;-lineinfo;-gencode;" )
 
 #####################################################################################
 # Find GVDB

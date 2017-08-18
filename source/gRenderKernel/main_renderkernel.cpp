@@ -93,7 +93,7 @@ int main (int argc, char* argv)
 	printf ( "Render custom kernel.\n" );
 	gvdb.getScene()->SetSteps ( 0.25f, 16, 0.25f );
 	gvdb.getScene()->SetVolumeRange ( 0.1f, 0.0, 1.0f );
-	gvdb.RenderKernel ( 0, cuRaycastKernel, SHADE_TRILINEAR, 0, 0, 1, 1, 1 );	
+	gvdb.RenderKernel ( 0, cuRaycastKernel, SHADE_TRILINEAR, 0, 0, 1, 1, 1 );
 
 	// Read render buffer
 	unsigned char* buf = (unsigned char*) malloc ( w*h*4 );

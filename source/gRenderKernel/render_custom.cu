@@ -36,7 +36,7 @@ extern "C" __global__ void raycast_kernel ( uchar4* outBuf )
   if ( x >= scn.width || y >= scn.height ) return;
 
   float4 clrTotal = make_float4(0,0,0,0);
-  int num_samples = 100;
+  int num_samples = 1000;
   for (int i = 0; i < num_samples; ++i) {
     float3 hit = make_float3(NOHIT,NOHIT,NOHIT);
     float4 clr = make_float4(1,1,1,1);
@@ -57,12 +57,12 @@ extern "C" __global__ void raycast_kernel ( uchar4* outBuf )
       float3 R    = normalize ( reflect3 ( eyedir, norm ) );    // reflection vector
       float diffuse = max(0.0f, dot( norm, lightdir ));
       float refl    = min(1.0f, max(0.0f, R.y ));
-      clr = diffuse*0.6 + refl * make_float4(1.0,0.3,0.7, 1.0);
+      clr = diffuse*0.6 + refl * make_float4(0.0, 0.3, 0.7, 1.0);
 
     } else {
       clr = make_float4 ( 0.0, 0.0, 0.1, 1.0 );
     }
-    clrTotal = clrTotal + clr / (float)num_samples;
+    clrTotal = clrTotal + (clr / (float)num_samples);
   }
   outBuf [ y*scn.width + x ] = make_uchar4( clrTotal.x*255, clrTotal.y*255,
                                             clrTotal.z*255, 255 );
