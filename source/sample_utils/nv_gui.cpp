@@ -94,7 +94,7 @@ void draw3D ()		{ g_2D.draw3D(); }
 
 void drawGui ( nvImg* img)		{ g_Gui.Draw( img ); }
 void clearGuis ()				{ g_Gui.Clear(); }
-int  addGui ( int x, int y, int w, int h, char* name, int gtype, int dtype, void* data, float vmin, float vmax ) { return g_Gui.AddGui ( float(x), float(y), float(w), float(h), name, gtype, dtype, data, vmin, vmax ); }
+int  addGui ( int x, int y, int w, int h, const char* name, int gtype, int dtype, void* data, float vmin, float vmax ) { return g_Gui.AddGui ( float(x), float(y), float(w), float(h), name, gtype, dtype, data, vmin, vmax ); }
 void setBackclr ( float r, float g, float b, float a )	{ return g_Gui.SetBackclr ( r,g,b,a ); }
 int  addItem ( char* name )		{ return g_Gui.AddItem ( name ); }
 int  addItem ( char* name, char* imgname ) { return g_Gui.AddItem ( name, imgname ); }
@@ -381,10 +381,10 @@ void nvDraw::drawImg ( nvImg* img, float x1, float y1, float x2, float y2, float
 {
 	int ndx;
 	nvVert* v = allocGeom ( img, GRP_IMG, mCurrSet, ndx );
-	v->x = x1; v->y = y1; v->z = 0; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 0; v->ty = 1;	v++;
-	v->x = x2; v->y = y1; v->z = 0; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 1; v->ty = 1;	v++;
-	v->x = x1; v->y = y2; v->z = 0; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 0; v->ty = 0;	v++;
-	v->x = x2; v->y = y2; v->z = 0; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 1; v->ty = 0;
+	v->x = x1; v->y = y1; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 0; v->ty = 1;	v++;
+	v->x = x2; v->y = y1; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 1; v->ty = 1;	v++;
+	v->x = x1; v->y = y2; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 0; v->ty = 0;	v++;
+	v->x = x2; v->y = y2; v->r = r; v->g = g; v->b = b; v->a = -a; v->tx = 1; v->ty = 0;
 }
 
 void nvDraw::drawFill ( float x1, float y1, float x2, float y2, float r, float g, float b, float a )
@@ -1260,7 +1260,7 @@ void nvDraw::draw3D ()
 
 	it = m3D.begin();
 	for ( int n = 0; n < m3DNum; n++ ) 
-		UpdateVBOs ( (*it) );	
+		UpdateVBOs ( (*it++) );	
 
 	glEnableVertexAttribArray( localPos );
 	glEnableVertexAttribArray( localClr );
@@ -1309,7 +1309,7 @@ nvGui::nvGui ()
 	mActiveGui = -1;
 }
 
-int nvGui::AddGui ( float x, float y, float w, float h, char* name, int gtype, int dtype, void* data, float vmin, float vmax  )
+int nvGui::AddGui ( float x, float y, float w, float h, const char* name, int gtype, int dtype, void* data, float vmin, float vmax  )
 {
 	Gui g;
 
@@ -1372,6 +1372,14 @@ bool nvGui::guiChanged ( int n )
 }
 void nvGui::Clear ()
 {	
+	// delete images
+	for (int n = 0; n < mGui.size(); n++) {
+		for (int j = 0; j < mGui[n].imgs.size(); j++) 
+			delete mGui[n].imgs[j];			
+		mGui[n].imgs.clear();
+	}
+	
+	// clear
 	mGui.clear ();
 }
 void nvGui::Draw ( nvImg* chrome )
@@ -1385,14 +1393,13 @@ void nvGui::Draw ( nvImg* chrome )
 
 	Vector4DF	tc ( 1, 1, 1, 1);		// text color
 	Vector3DF	toff ( 5, 15, 0 );		// text offset
-	float		xoff = 50;				// value offset (from right)
 	
 	for (int n=0; n < mGui.size(); n++ ) {
 		
 		x1 = mGui[n].x;	y1 = mGui[n].y;
 		x2 = x1 + mGui[n].w; y2 = y1 + mGui[n].h;	
 		tx = x1 + toff.x; ty = y1 + toff.y;
-		x3 = x2 - xoff;
+		x3 = x2 - mGui[n].w/2;
 
 		if ( chrome != 0x0 ) drawImg ( chrome, x1, y1, x2, y2, 1, 1, 1, 1 );		
 		else				 drawFill ( x1, y1, x2, y2, mGui[n].backclr.x, mGui[n].backclr.y, mGui[n].backclr.z, mGui[n].backclr.w );
